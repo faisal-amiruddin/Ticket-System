@@ -29,14 +29,14 @@ class AuthController extends Controller
                 'data' => [
                     'token' => $token
                 ]
-            ]);
+            ], 200);
         } catch (Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Terjadi Kesalahan',
                 'error' => $e->getMessage(),
                 'data' => null
-            ]);
+            ], 500);
         }
     }
 }
