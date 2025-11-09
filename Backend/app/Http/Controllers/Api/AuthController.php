@@ -3,10 +3,14 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\RegisterStoreRequest;
 use App\Http\Resources\UserResource;
+use App\Models\User;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
@@ -72,6 +76,36 @@ class AuthController extends Controller
                 'message' => 'Berhasil Logout!',
                 'data' => null
             ], 200);
+        } catch (Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi Kesalahan',
+                'error' => $e->getMessage(),
+                'data' => null
+            ], 500);
+        }
+    }
+
+    public function register(RegisterStoreRequest $request)
+    {
+        $data = $request->validated();
+
+        DB::beginTransaction();
+
+        try {
+            $user = new User;
+            $user->name = $data['name'];
+            $user->email = $data['email'];
+            $user->password = Hash::make($data['password']);
+            $user->save();
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Berhasil Melakukan Register!',
+                'data' => new UserResource($user)
+            ], 201);
         } catch (Exception $e) {
             return response()->json([
                 'success' => false,
