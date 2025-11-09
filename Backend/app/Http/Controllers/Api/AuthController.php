@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\UserResource;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -29,6 +30,26 @@ class AuthController extends Controller
                 'data' => [
                     'token' => $token
                 ]
+            ], 200);
+        } catch (Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi Kesalahan',
+                'error' => $e->getMessage(),
+                'data' => null
+            ], 500);
+        }
+    }
+
+    public function me()
+    {
+        try {
+            $user = Auth::user();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Berhasil mendapatkan data user!',
+                'data' => new UserResource($user)
             ], 200);
         } catch (Exception $e) {
             return response()->json([
