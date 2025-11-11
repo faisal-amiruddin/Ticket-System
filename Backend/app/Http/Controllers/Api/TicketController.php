@@ -12,6 +12,41 @@ use Illuminate\Support\Facades\DB;
 
 class TicketController extends Controller
 {
+    public function index(Request $request)
+    {
+        try {
+            $query = Ticket::query();
+            $query->orderBy('created_at', 'desc');
+
+            if ($request->search) {
+                $query->where('code', 'like', '%' . $request->search . '%')
+                ->orWhere('title', 'like', '%' . $request->search . '%');
+            }
+
+            if ($request->status) {
+                $query->where('status', $request->status);
+            }
+
+            if(auth()->user()->role == 'user') {
+                $query->where('user_id', auth()->user()->id);
+            }
+
+            $ticket = $query->get();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Data Tiket Berhasil Didapatkan',
+                'data' => TicketResource::collection($ticket)
+            ], 200);
+        } catch (Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal Mendapatkan Data Ticket',
+                'error' => $e->getMessage(),
+                'data' => null
+            ], 500);
+        }
+    }
     public function store(TicketStoreRequest $request)
     {
         $data = $request->validated();
@@ -39,6 +74,7 @@ class TicketController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Gagal Membuat Ticket',
+                'error' => $e->getMessage(),
                 'data' => null
             ], 500);
         }
