@@ -23,15 +23,3 @@ Backend/.idea/
 Backend/.nova/
 Backend/.vscode/
 Backend/.zed/
-
-# Frontend (React - TanStack Router)
-Frontend/node_modules/
-Frontend/.DS_Store
-Frontend/dist/
-Frontend/dist-ssr/
-Frontend/*.local
-Frontend/count.txt
-Frontend/.env
-Frontend/.nitro/
-Frontend/.tanstack/
-Frontend/.wrangler/
