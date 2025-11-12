@@ -22,6 +22,6 @@ class Ticket extends Model
 
     public function ticketReplies()
     {
-        return $this->hasMany(Ticket::class);
+        return $this->hasMany(TicketReply::class);
     }
 }
