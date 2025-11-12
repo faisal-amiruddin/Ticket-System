@@ -79,4 +79,40 @@ class TicketController extends Controller
             ], 500);
         }
     }
+
+    public function show($code)
+    {
+        try {
+            $ticket = Ticket::where('code', $code)->first();
+
+            if (!$ticket) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Ticket Tidak Ditemukan',
+                    'data' => null
+                ], 404);
+            }
+
+            if (auth()->user()->role == 'user' && $ticket->user_id != auth()->user()->id) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Anda Tidak Memiliki Izin',
+                    'data' =>null
+                ], 403);
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Ticket Berhasil Ditampilkan',
+                'data' => new TicketResource($ticket)
+            ], 200);
+        } catch (Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal Menampilkan Ticket',
+                'error' => $e->getMessage(),
+                'data' => null
+            ], 500);
+        }
+    }
 }

@@ -23,7 +23,8 @@ class TicketResource extends JsonResource
             'status' => $this->status,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
-            'complated_at' => $this->complated_at
+            'complated_at' => $this->complated_at,
+            'ticket_replies' => new TicketReplyResource::collection($this->ticketRiples)
         ];
     }
 }
