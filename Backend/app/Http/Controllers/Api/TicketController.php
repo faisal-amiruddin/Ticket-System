@@ -3,12 +3,17 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\TicketReplyStoreRequest;
 use App\Http\Requests\TicketStoreRequest;
+use App\Http\Resources\TicketReplyResource;
 use App\Http\Resources\TicketResource;
 use App\Models\Ticket;
+use App\Models\TicketReply;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+
+use function Symfony\Component\Clock\now;
 
 class TicketController extends Controller
 {
@@ -75,6 +80,63 @@ class TicketController extends Controller
                 'success' => false,
                 'message' => 'Gagal Membuat Ticket',
                 'error' => $e->getMessage(),
+                'data' => null
+            ], 500);
+        }
+    }
+
+    public function storeReply(TicketReplyStoreRequest $request, $code)
+    {
+        $data = $request->validated();
+
+        DB::beginTransaction();
+
+        try {
+            $ticket = Ticket::where('code', $code)->first();
+
+            if (!$ticket) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Ticket Tidak Ditemukan',
+                    'data' => null
+                ], 404);
+            }
+
+            if (auth()->user()->role == 'user' && $ticket->user_id != auth()->user()->id) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Anda Tidak Memiliki Izin',
+                    'data' =>null
+                ], 403);
+            }
+
+            $ticketReply = new TicketReply();
+            $ticketReply->ticket_id = $ticket->id;
+            $ticketReply->user_id = $ticket->auth()->user()->id;
+            $ticketReply->content = $data['content'];
+            $ticketReply->save();
+
+            if (auth()->user()->role == 'king') {
+                $ticket->status = $data['status'];
+
+                if ($data['status'] == 'resolved') {
+                    $ticket->completed_at = now();
+                }
+                $ticket->save();
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Berhasil Membalas',
+                'data' => new TicketReplyResource($ticketReply)
+            ], 201);
+        } catch (Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi Kesalahan',
                 'data' => null
             ], 500);
         }

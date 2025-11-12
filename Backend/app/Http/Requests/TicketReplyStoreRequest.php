@@ -15,7 +15,7 @@ class TicketReplyStoreRequest extends FormRequest
     {
         return [
             'content' => 'required|string',
-            'status' => auth()->user()->role() == 'admin' ? 'required|in:open,in_progress,resolved,rejected' : 'nullable'
+            'status' => auth()->user()->role() == 'king' ? 'required|in:open,in_progress,resolved,rejected' : 'nullable'
         ];
     }
 }
