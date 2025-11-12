@@ -112,7 +112,7 @@ class TicketController extends Controller
 
             $ticketReply = new TicketReply();
             $ticketReply->ticket_id = $ticket->id;
-            $ticketReply->user_id = $ticket->auth()->user()->id;
+            $ticketReply->user_id = auth()->user()->id;
             $ticketReply->content = $data['content'];
             $ticketReply->save();
 
@@ -137,6 +137,7 @@ class TicketController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Terjadi Kesalahan',
+                'error' => $e->getMessage(),
                 'data' => null
             ], 500);
         }
